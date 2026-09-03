@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Images/ID.png" alt="Incident Desk logo" width="480">
+</p>
+
 # Incident Desk
 
 **A full-stack incident reporting platform for security teams — structured intake, lifecycle tracking, and a self-documenting audit trail.**
