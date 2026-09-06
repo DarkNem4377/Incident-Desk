@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Incident Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" type="image/png" href="/static/favicon.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <nav class="rail">
+    <div class="rail-brand">
+      <img class="rail-brand-mark" src="/static/logo-mark.png" alt="">
+      <span class="rail-brand-text">Incident Desk</span>
+    </div>
+    <button class="rail-link is-active" data-view="dashboard">Dashboard</button>
+    <button class="rail-link" data-view="new">Report incident</button>
+    <button class="rail-link" data-view="trends">Trends</button>
+
+    <div class="rail-user">
+      <label for="current-author">Acting as</label>
+      <input type="text" id="current-author" placeholder="Your name" autocomplete="off">
+      <p class="field-error" id="current-author-error"></p>
+    </div>
+  </nav>
+
+  <main class="content">
+
+    <!-- ============ DASHBOARD ============ -->
+    <section id="view-dashboard" class="view is-active">
+      <header class="view-header">
+        <div>
+          <div class="view-title">
+            <img class="view-title-mark" src="/static/logo-mark.png" alt="">
+            <h1>Incidents</h1>
+          </div>
+          <p class="view-subtitle" id="incident-count-label">Loading…</p>
+        </div>
+        <div class="filter-bar">
+          <label class="filter-field">
+            <span>Status</span>
+            <select id="filter-status">
+              <option value="">All</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Severity</span>
+            <select id="filter-severity">
+              <option value="">All</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Sort</span>
+            <select id="filter-sort">
+              <option value="created_desc">Newest first</option>
+              <option value="created_asc">Oldest first</option>
+              <option value="severity_desc">Severity (high → low)</option>
+              <option value="discovery_desc">Discovery time</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <div class="table-wrap">
+        <table class="incident-table">
+          <thead>
+            <tr>
+              <th class="col-id">ID</th>
+              <th>Type</th>
+              <th class="col-severity">Severity</th>
+              <th class="col-status">Status</th>
+              <th>Reporter</th>
+              <th>Discovered</th>
+              <th class="col-updates">Updates</th>
+            </tr>
+          </thead>
+          <tbody id="incident-rows"></tbody>
+        </table>
+        <div id="empty-state" class="empty-state hidden">
+          <p>No incidents match these filters.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NEW INCIDENT ============ -->
+    <section id="view-new" class="view">
+      <header class="view-header">
+        <div>
+          <h1>Report an incident</h1>
+          <p class="view-subtitle">Every field here becomes part of the permanent record. Be specific.</p>
+        </div>
+      </header>
+
+      <form id="incident-form" class="form-card" novalidate>
+        <div class="form-row">
+          <label for="f-type">Incident type</label>
+          <select id="f-type" name="incident_type" required>
+            <option value="" disabled selected>Select a type…</option>
+          </select>
+          <p class="field-error" data-for="incident_type"></p>
+        </div>
+
+        <div class="form-row">
+          <label for="f-discovery">Discovery time</label>
+          <input type="datetime-local" id="f-discovery" name="discovery_time" required>
+          <p class="field-error" data-for="discovery_time"></p>
+        </div>
+
+        <div class="form-row">
+          <label for="f-severity">Initial severity</label>
+          <select id="f-severity" name="initial_severity" required>
+            <option value="" disabled selected>Select severity…</option>
+          </select>
+          <p class="field-error" data-for="initial_severity"></p>
+        </div>
+
+        <div class="form-row">
+          <label for="f-reporter">Reported by</label>
+          <input type="text" id="f-reporter" name="reporter" placeholder="Your name" required>
+          <p class="field-error" data-for="reporter"></p>
+        </div>
+
+        <div class="form-row form-row-wide">
+          <label for="f-description">What happened</label>
+          <textarea id="f-description" name="description" rows="6"
+            placeholder="Describe what was observed, affected systems or accounts, and how it was discovered."
+            required></textarea>
+          <p class="field-error" data-for="description"></p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">File report</button>
+          <span class="form-status" id="form-status"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============ TRENDS ============ -->
+    <section id="view-trends" class="view">
+      <header class="view-header">
+        <div>
+          <h1>Trends</h1>
+          <p class="view-subtitle">Incident volume by type over time.</p>
+        </div>
+        <div class="filter-bar">
+          <label class="filter-field">
+            <span>Range</span>
+            <select id="trend-range">
+              <option value="7">Last 7 days</option>
+              <option value="30" selected>Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last 12 months</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <div class="trend-layout">
+        <div class="chart-card">
+          <canvas id="trend-chart" height="280"></canvas>
+          <p id="trend-empty" class="empty-state hidden">No incidents recorded in this range.</p>
+        </div>
+        <div class="totals-card">
+          <h2>By type, this range</h2>
+          <ul id="trend-totals-list" class="totals-list"></ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="drawer-backdrop" class="drawer-backdrop hidden"></div>
+  <aside id="drawer" class="drawer">
+    <div class="drawer-header">
+      <div>
+        <span class="drawer-id" id="drawer-id"></span>
+        <h2 id="drawer-type"></h2>
+      </div>
+      <button id="drawer-close" class="btn-icon" aria-label="Close">×</button>
+    </div>
+
+    <div class="drawer-body" id="drawer-body">
+      <!-- populated by app.js -->
+    </div>
+  </aside>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

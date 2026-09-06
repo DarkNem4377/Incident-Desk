@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo-mark.png" alt="Incident Desk logo" width="480">
+  <img src="Images/logo-mark.png" alt="Incident Desk logo" width="480">
 </p>
 
 # Incident Desk
