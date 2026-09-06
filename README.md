@@ -104,7 +104,8 @@ These came up directly from edge-case testing and were resolved as explicit prod
 | PATCH  | `/api/incidents/<id>`                  | Update status and/or severity (writes a timeline entry). |
 | POST   | `/api/incidents/<id>/reopen`           | Reopen a closed incident with a logged reason. |
 | POST   | `/api/incidents/<id>/timeline`         | Add a note to the timeline. |
-| GET/POST | `/api/incidents/<id>/report`         | Fetch or save the post-incident report. |
+| GET    | `/api/incidents/<id>/report`           | Fetch the post-incident report (creates a blank one on first access). |
+| PUT    | `/api/incidents/<id>/report`           | Save the post-incident report. |
 | GET    | `/api/trends`                          | Incident volume by type, bucketed over a date range. |
 
 ## Known limitations (honest, not hidden)
@@ -117,15 +118,19 @@ These came up directly from edge-case testing and were resolved as explicit prod
 
 ```
 incident-desk/
-├── app.py            # Flask app: routes, validation, DB access
+├── app.py             # Flask app: routes, validation, DB access
 ├── seed_data.py       # Wipes and repopulates incidents.db with mock data
 ├── requirements.txt
-├── incidents.db        # SQLite database (gitignored in practice; ships seeded)
+├── incidents.db       # SQLite database (ships pre-seeded)
+├── LICENSE            # MIT
+├── Images/            # Brand assets used by the README
 ├── templates/
 │   └── index.html
 └── static/
     ├── app.js         # All frontend logic — views, drawer, chart, forms
-    └── style.css      # Design tokens + component styles
+    ├── style.css      # Design tokens + component styles
+    ├── logo-mark.png  # Served to the page header
+    └── favicon.png    # Served as the browser tab icon
 ```
 
 ## Skills demonstrated
